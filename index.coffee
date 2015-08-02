@@ -26,11 +26,24 @@ module.exports = exports = (config = {}) ->
       res.status(404).send()
     config.getAvatarFun req, res, next
 
-  app.post '/:email', (req, res, next) ->
-    email = req.params.email.toLowerCase().trim()
-    md5 = crypto.createHash('md5').update(email).digest('hex')
+  app.put '/:hash', (req, res, next) ->
+    {hash} = req.params
+    return res.status(400).send()  unless hash?
+    {email} = req.query
+    email = email?.toLowerCase().trim()
     knownHashes = require config.knownHashesFilename
-    knownHashes[md5] = email
+    knownHashes[hash] = email
+    fs.writeFile config.knownHashesFilename, JSON.stringify(knownHashes, null, 2), (err) ->
+      return next err  if err?
+      res.status(204).send()
+
+  app.post '/', (req, res, next) ->
+    {email} = req.query
+    return res.status(400).send()  unless email?
+    email = email.toLowerCase().trim()
+    hash = crypto.createHash('md5').update(email).digest('hex')
+    knownHashes = require config.knownHashesFilename
+    knownHashes[hash] = email
     fs.writeFile config.knownHashesFilename, JSON.stringify(knownHashes, null, 2), (err) ->
       return next err  if err?
       res.status(204).send()
