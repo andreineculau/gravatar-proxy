@@ -40,6 +40,10 @@ Change your `config.coffee` to this
   allowUnknownHashes: false
 ```
 
+In order to make an email (its hash) known, just `POST /?email=user@example.com`.
+
+If you want to create aliases, just `PUT /<hash_for_user@foo.com>?email=user@example.com`
+
 ## License
 
 [Apache 2.0](LICENSE)
