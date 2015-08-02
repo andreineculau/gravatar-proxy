@@ -16,7 +16,7 @@ module.exports = {
       'Expires': '0'
       'Server': "#{pkg.name}/#{pkg.version}"
   ],
-  subpath: '/'             # host gravatar under a subpath
+  subpath: '/avatar'       # host gravatar under a subpath
   morgan:                  # logging https://github.com/expressjs/morgan
     format: 'common'
   getAvatarFun: (req, res, next) ->

@@ -17,7 +17,7 @@ module.exports = exports = (config = {}) ->
 
   app.use morgan config.morgan.format
 
-  app.get '/avatar/:hash', (req, res, next) ->
+  app.get '/:hash', (req, res, next) ->
     [req.params.hash, req.params.format] = req.params.hash.split '.'
     req.params.email = knownHashes[req.params.hash]
     unless req.params.email? or config.allowUnknownHashes
@@ -26,7 +26,7 @@ module.exports = exports = (config = {}) ->
       res.status(404).send()
     config.getAvatarFun req, res, next
 
-  app.post '/avatar/:email', (req, res, next) ->
+  app.post '/:email', (req, res, next) ->
     email = req.params.email.toLowerCase().trim()
     md5 = crypto.createHash('md5').update(email).digest('hex')
     knownHashes = require config.knownHashesFilename
