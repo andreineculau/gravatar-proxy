@@ -21,9 +21,9 @@ module.exports = exports = (config = {}) ->
     [req.params.hash, req.params.format] = req.params.hash.split '.'
     req.params.email = knownHashes[req.params.hash]
     unless req.params.email? or config.allowUnknownHashes
-      res.status(404).send()
+      return res.status(404).send()
     unless config.getAvatarFun?
-      res.status(404).send()
+      return res.status(404).send()
     config.getAvatarFun req, res, next
 
   app.put '/:hash', (req, res, next) ->
@@ -35,7 +35,7 @@ module.exports = exports = (config = {}) ->
     knownHashes[hash] = email
     fs.writeFile config.knownHashesFilename, JSON.stringify(knownHashes, null, 2), (err) ->
       return next err  if err?
-      res.status(204).send()
+      return res.status(204).send()
 
   app.post '/', (req, res, next) ->
     {email} = req.query
@@ -46,6 +46,6 @@ module.exports = exports = (config = {}) ->
     knownHashes[hash] = email
     fs.writeFile config.knownHashesFilename, JSON.stringify(knownHashes, null, 2), (err) ->
       return next err  if err?
-      res.status(204).send()
+      return res.status(204).send()
 
   app

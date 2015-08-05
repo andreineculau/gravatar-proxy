@@ -26,20 +26,16 @@ module.exports = (req, res, next) ->
     return next err  if err?
 
     onError = (err) ->
-      if defaultUrl?
-        res.redirect defaultUrl
-      else
-        next err
+      return res.redirect defaultUrl  if defaultUrl?
+      next err
 
     onResponse = (response) ->
       file = fs.createWriteStream "#{cacheDir}/#{username}.jpg"
       response.pipe file
       module.exports.resizeCache username, size, (err) ->
         return next err  if err?
-        if defaultUrl?
-          res.redirect defaultUrl
-        else
-          res.status(404).send()
+        return res.redirect defaultUrl  if defaultUrl?
+        return res.status(404).send()
 
     request.get({url: "http://wwwin.cisco.com/dir/photo/zoom/#{username}.jpg"}) # CHANGEME
       .on('error', onError)
@@ -47,13 +43,13 @@ module.exports = (req, res, next) ->
 
 module.exports.maybeUseCache = (username, size, defaultUrl, res, next) ->
   if fs.exists "#{cacheDir}/#{username}.#{size}.jpg"
-    res.sendFile "#{cacheDir}/#{username}.#{size}.jpg"
+    return res.sendFile "#{cacheDir}/#{username}.#{size}.jpg"
   else if fs.exists "#{cacheDir}/#{username}.jpg"
     resizeCache username, size, (err) ->
       return next err  if err?
-      res.sendFile "#{cacheDir}/#{username}.#{size}.jpg"
+      return res.sendFile "#{cacheDir}/#{username}.#{size}.jpg"
   else
-    res.redirect defaultUrl
+    return res.redirect defaultUrl
 
 module.exports.resizeCache = (username, size, next) ->
   lwip.open "#{cacheDir}/#{username}.jpg", (err, image) ->
