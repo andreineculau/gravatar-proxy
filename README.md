@@ -22,11 +22,21 @@ In production, try
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/andreineculau/gravatar-proxy)
 
-## Common setup
+## URLs
+
+Accessing a gravatar is done via `GET /<hash_for_user@example.com>`.
+
+In order to make an email (its hash) known, just `POST /?email=user@example.com`.
+
+If you want to create aliases, just `PUT /<hash_for_user@foo.com>?email=user@example.com`
+
+## Common setups
 
 By default, gravatar-proxy will, well.. proxy requests straight to gravatar.com .
 
-But a common setup is that you have some server that hosts the avatars and you
+### Redirect setup
+
+A common setup is that you have some server that hosts the avatars and you
 just want a proxy to tie up the MD5 hashes to the usernames, and maybe also
 restrict the email addresses to those that are known to your group.
 
@@ -38,9 +48,25 @@ assuming that your `config.coffee` looks like this
   allowUnknownHashes: false
 ```
 
-In order to make an email (its hash) known, just `POST /?email=user@example.com`.
+### Proxy with resizing setup
 
-If you want to create aliases, just `PUT /<hash_for_user@foo.com>?email=user@example.com`
+In addition to the previous setup, you might want to resize the avatars based on
+`req.query.s(ize)` or implement support for `req.query.d(efault)`.
+
+You can see an example in [getAvatar.storeAndResize.coffee](getAvatar.storeAndResize.coffee),
+assuming that your `config.coffee` looks like this
+
+```coffee
+  getAvatar: require './getAvatar.storeAndResize'
+  allowUnknownHashes: false
+```
+
+and you have executed
+
+```bash
+npm install request lwip
+mkdir cache
+```
 
 ## License
 
