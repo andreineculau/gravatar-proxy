@@ -22,7 +22,7 @@ module.exports = (req, res, next) ->
   email = req.params.email
   [username, domain] = email.split '@'
 
-  module.exports.maybeUseCache username, size, defaultUrl, res, (err) ->
+  module.exports.maybeUseCache username, size, res, (err) ->
     return next err  if err?
 
     onError = (err) ->
@@ -31,25 +31,27 @@ module.exports = (req, res, next) ->
 
     onResponse = (response) ->
       file = fs.createWriteStream "#{cacheDir}/#{username}.jpg"
-      response.pipe file
-      module.exports.resizeCache username, size, (err) ->
-        return next err  if err?
-        return res.redirect defaultUrl  if defaultUrl?
-        return res.status(404).send()
+      response.pipe(file).on 'close', () ->
+        module.exports.resizeCache username, size, (err) ->
+          return next err  if err?
+          module.exports.maybeUseCache username, size, res, (err) ->
+            return next err  if err?
+            return res.redirect defaultUrl  if defaultUrl?
+            return res.status(404).send()
 
-    request.get({url: "http://wwwin.cisco.com/dir/photo/zoom/#{username}.jpg"}) # CHANGEME
+    request.get({url: "http://example.com/#{username}.jpg"}) # CHANGEME
       .on('error', onError)
       .on('response', onResponse)
 
-module.exports.maybeUseCache = (username, size, defaultUrl, res, next) ->
-  if fs.exists "#{cacheDir}/#{username}.#{size}.jpg"
+module.exports.maybeUseCache = (username, size, res, next) ->
+  if fs.existsSync "#{cacheDir}/#{username}.#{size}.jpg"
     return res.sendFile "#{cacheDir}/#{username}.#{size}.jpg"
-  else if fs.exists "#{cacheDir}/#{username}.jpg"
-    resizeCache username, size, (err) ->
+  else if fs.existsSync "#{cacheDir}/#{username}.jpg"
+    module.exports.resizeCache username, size, (err) ->
       return next err  if err?
       return res.sendFile "#{cacheDir}/#{username}.#{size}.jpg"
   else
-    return res.redirect defaultUrl
+    next()
 
 module.exports.resizeCache = (username, size, next) ->
   lwip.open "#{cacheDir}/#{username}.jpg", (err, image) ->
@@ -61,7 +63,7 @@ module.exports.resizeCache = (username, size, next) ->
 
     scaleRatio = 1
     if refSize > size
-      scaleRatio = Math.round((size / refSize) * 100 * 100) / 100
+      scaleRatio = Math.ceil(size / refSize * 100) / 100
 
     image.batch()
       .scale(scaleRatio)
