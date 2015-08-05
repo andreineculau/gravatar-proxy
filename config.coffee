@@ -19,16 +19,7 @@ module.exports = {
   subpath: '/avatar'       # host gravatar under a subpath
   morgan:                  # logging https://github.com/expressjs/morgan
     format: 'common'
-  getAvatarFun: (req, res, next) ->
-    {email, hash} = req.params
-    switch req.protocol
-      when 'http'
-        {query} = parseurl req
-        res.redirect "http://www.gravatar.com/avatar/#{hash}?#{query}"
-      when 'https'
-        res.redirect "https://secure.gravatar.com/avatar/#{hash}?#{query}"
-      else
-        res.status(404).send()
+  getAvatarFun: require './getAvatar.default'
   allowUnknownHashes: true
   knownHashesFilename: 'hash2email.json'
 }

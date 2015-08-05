@@ -30,13 +30,11 @@ But a common setup is that you have some server that hosts the avatars and you
 just want a proxy to tie up the MD5 hashes to the usernames, and maybe also
 restrict the email addresses to those that are known to your group.
 
-Change your `config.coffee` to this
+You can see an example in [getAvatar.redirect.coffee](getAvatar.redirect.coffee),
+assuming that your `config.coffee` looks like this
 
 ```coffee
-  getAvatar: (req, res, next) ->
-    email = req.params.email
-    [username, domain] = email.split '@'
-    res.redirect "//example.com/#{username}.jpg"
+  getAvatar: require './getAvatar.redirect'
   allowUnknownHashes: false
 ```
 
