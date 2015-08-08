@@ -20,6 +20,10 @@ module.exports = (req, res, next) ->
     return res.redirect defaultUrl
 
   email = req.params.email
+
+  unless email?
+    return res.redirect defaultUrl
+
   [username, domain] = email.split '@'
 
   module.exports.maybeUseCache username, size, res, (err) ->

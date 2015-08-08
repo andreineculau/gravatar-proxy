@@ -58,7 +58,7 @@ assuming that your `config.coffee` looks like this
 
 ```coffee
   getAvatar: require './getAvatar.storeAndResize'
-  allowUnknownHashes: false
+  allowUnknownHashes: true
 ```
 
 and you have executed
@@ -67,6 +67,9 @@ and you have executed
 npm install request lwip
 mkdir cache
 ```
+
+**NOTE**: this setup has `allowUnknownHashes: true` because
+[getAvatar.storeAndResize.coffee](getAvatar.storeAndResize.coffee) handles unknown hashes on its own.
 
 ## License
 
